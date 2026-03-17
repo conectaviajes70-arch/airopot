@@ -1,1 +1,140 @@
-# airopot
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONECTA Airport</title>
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#0a0a0a;
+  color:#fff;
+}
+.container {
+  padding:20px;
+}
+.card {
+  background:#111;
+  border-radius:15px;
+  padding:20px;
+  margin-bottom:15px;
+  box-shadow:0 0 10px #00d4ff;
+}
+input, button, select {
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border:none;
+  border-radius:10px;
+}
+input, select {
+  background:#1a1a1a;
+  color:#fff;
+}
+button {
+  background:#00d4ff;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+.hidden {display:none;}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div id="login" class="card">
+  <h2>Login CONECTA</h2>
+  <select id="role">
+    <option value="user">Usuario</option>
+    <option value="driver">Conductor</option>
+  </select>
+  <input type="text" id="phone" placeholder="Teléfono">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<!-- USUARIO -->
+<div id="userPanel" class="hidden">
+  <div class="card">
+    <h2>Pedir viaje</h2>
+    <input type="text" id="destino" placeholder="Destino">
+    <button onclick="crearViaje()">Solicitar</button>
+  </div>
+  <div class="card" id="viajeInfo"></div>
+</div>
+
+<!-- CONDUCTOR -->
+<div id="driverPanel" class="hidden">
+  <div class="card">
+    <h2>Modo Conductor</h2>
+    <button onclick="activarConductor()">Entrar aeropuerto</button>
+    <button onclick="verViajes()">Ver viajes</button>
+  </div>
+  <div class="card" id="driverViajes"></div>
+</div>
+
+</div>
+
+<script>
+let currentUser = {};
+
+function login(){
+  const role = document.getElementById('role').value;
+  const phone = document.getElementById('phone').value;
+  currentUser = {role, phone};
+
+  document.getElementById('login').classList.add('hidden');
+
+  if(role === 'user'){
+    document.getElementById('userPanel').classList.remove('hidden');
+  } else {
+    document.getElementById('driverPanel').classList.remove('hidden');
+  }
+}
+
+function crearViaje(){
+  const destino = document.getElementById('destino').value;
+  const viaje = {
+    id: Date.now(),
+    destino: destino,
+    estado: 'buscando'
+  };
+
+  localStorage.setItem('viaje', JSON.stringify(viaje));
+  document.getElementById('viajeInfo').innerHTML = `
+    <p>Destino: ${destino}</p>
+    <p>Estado: Buscando conductor...</p>
+  `;
+}
+
+function activarConductor(){
+  localStorage.setItem('driverActivo', true);
+  alert('Conectado al aeropuerto');
+}
+
+function verViajes(){
+  const viaje = JSON.parse(localStorage.getItem('viaje'));
+  if(viaje && viaje.estado === 'buscando'){
+    document.getElementById('driverViajes').innerHTML = `
+      <p>Viaje a ${viaje.destino}</p>
+      <button onclick="aceptarViaje(${viaje.id})">Aceptar</button>
+    `;
+  } else {
+    document.getElementById('driverViajes').innerHTML = 'Sin viajes';
+  }
+}
+
+function aceptarViaje(id){
+  let viaje = JSON.parse(localStorage.getItem('viaje'));
+  viaje.estado = 'en camino';
+  localStorage.setItem('viaje', JSON.stringify(viaje));
+  alert('Viaje aceptado');
+}
+
+</script>
+
+</body>
+</html>
