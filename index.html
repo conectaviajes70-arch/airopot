@@ -38,6 +38,7 @@ button {
   font-weight:bold;
   cursor:pointer;
 }
+  <button onclick="entrarCola()">Entrar a fila aeropuerto</button>
 .hidden {display:none;}
   iframe {
   filter: invert(90%) hue-rotate(180deg);
@@ -220,6 +221,19 @@ function aceptarViajeReal(id){
   .then(() => {
     alert("Viaje aceptado 🚖");
     verViajes();
+  });
+}
+  // ENTRAR A COLA
+function entrarCola(){
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "entrarCola",
+      telefono: currentUser.phone
+    })
+  })
+  .then(() => {
+    alert("Estás en la fila del aeropuerto 🚖");
   });
 }
 </script>
