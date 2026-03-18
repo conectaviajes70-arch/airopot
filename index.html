@@ -138,3 +138,71 @@ function aceptarViaje(id){
 
 </body>
 </html>
+const API_URL = "https://script.google.com/macros/s/AKfycbxLiYCJ-XTGAlf7nZx8csUgj-RIsp29bKKywNlEnSfcDM-ZrSkSOeDTRYO4gyfEcT_N/exec";
+
+// CREAR VIAJE REAL
+function crearViaje(){
+  const destino = document.getElementById('destino').value;
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "crearViaje",
+      telefono: currentUser.phone,
+      destino: destino
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('viajeInfo').innerHTML = `
+      <p>Destino: ${destino}</p>
+      <p>Estado: Buscando conductor...</p>
+      <p>ID: ${data.id}</p>
+    `;
+  });
+}
+
+// VER VIAJES (CONDUCTOR)
+function verViajes(){
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "obtenerViajes"
+    })
+  })
+  .then(res => res.json())
+  .then(viajes => {
+
+    if(viajes.length === 0){
+      document.getElementById('driverViajes').innerHTML = "Sin viajes";
+      return;
+    }
+
+    let html = "";
+
+    viajes.forEach(v => {
+      html += `
+        <p>Viaje a ${v.destino}</p>
+        <button onclick="aceptarViajeReal(${v.id})">Aceptar</button>
+      `;
+    });
+
+    document.getElementById('driverViajes').innerHTML = html;
+  });
+}
+
+// ACEPTAR VIAJE REAL
+function aceptarViajeReal(id){
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "aceptarViaje",
+      id: id,
+      conductor: currentUser.phone
+    })
+  })
+  .then(() => {
+    alert("Viaje aceptado 🚖");
+    verViajes();
+  });
+}
